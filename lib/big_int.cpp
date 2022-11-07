@@ -32,12 +32,8 @@ namespace la {
    }
 
    void BigInt::_shift(size_t count) {
-      std::vector<int> buffer(static_cast<int>(count + _resource.size()), 0);
-
-      for(int i = 0; i < _resource.size(); i++)
-         buffer[i + count] = _resource[i];
-
-      _resource = std::move(buffer);
+      for(int i = 0; i < count; i++)
+         _resource.push_front(0);
    }
 
    // Public methods
@@ -73,9 +69,10 @@ namespace la {
       bool _abs_bigger = false;
       bool _is_eq = true;
 
-      for (int i = _First._resource.size() - 1; i >= 0; i--)             // Comparing absolute of numbers
-         if(_First._resource[i] != _Second._resource[i]) {
-            _abs_bigger = _First._resource[i] > _Second._resource[i];
+      // Comparing absolute of numbers
+      for(std::list<int>::const_reverse_iterator _f = _First._resource.rbegin(), _s = _Second._resource.rbegin(); _f != _First._resource.rend(); _f++, _s++)             
+         if(*_f != *_s) {
+            _abs_bigger = *_f > *_s;
             _is_eq = false;
             break;
          }
@@ -101,9 +98,10 @@ namespace la {
       bool _abs_bigger = false;
       bool _is_eq = true;
 
-      for (int i = _First._resource.size() - 1; i >= 0; i--)             // Comparing absolute of numbers
-         if(_First._resource[i] != _Second._resource[i]) {
-            _abs_bigger = _First._resource[i] > _Second._resource[i];
+      // Comparing absolute of numbers
+      for(std::list<int>::const_reverse_iterator _f = _First._resource.rbegin(), _s = _Second._resource.rbegin(); _f != _First._resource.rend(); _f++, _s++)             
+         if(*_f != *_s) {
+            _abs_bigger = *_f > *_s;
             _is_eq = false;
             break;
          }
@@ -130,9 +128,10 @@ namespace la {
       bool _abs_bigger = false;
       bool _is_eq = true;
 
-      for (int i = _First._resource.size() - 1; i >= 0; i--)             // Comparing absolute of numbers
-         if(_First._resource[i] != _Second._resource[i]) {
-            _abs_bigger = _First._resource[i] > _Second._resource[i] ? 1 : -1;
+      // Comparing absolute of numbers
+      for(std::list<int>::reverse_iterator _f = _First._resource.rbegin(), _s = _Second._resource.rbegin(); _f != _First._resource.rend(); _f++, _s++)             
+         if(*_f != *_s) {
+            _abs_bigger = *_f > *_s;
             _is_eq = false;
             break;
          }
@@ -186,17 +185,27 @@ namespace la {
       BigInt result;
 
       result._resource.push_back(0);
-      for(int i = 0; i < std::max(_First._resource.size(), _Second._resource.size()); i++) {
-         long long buff;
-         if(i >= _First._resource.size()) 
-            buff = static_cast<long long>(result._resource[i]) + _Second._resource[i];
-         else if(i >= _Second._resource.size())
-            buff = static_cast<long long>(result._resource[i]) + _First._resource[i];
-         else 
-            buff = static_cast<long long>(result._resource[i]) + _First._resource[i] + _Second._resource[i];
+      for(std::list<int>::const_reverse_iterator _f = _First._resource.rbegin(), _s = _Second._resource.rbegin();
+            _f != _First._resource.rend() || _s != _Second._resource.rend();) {
 
-         result._resource[i] = buff % BigInt::_base;
-         result._resource.push_back(buff / BigInt::_base);
+         long long buff;
+         if(_f == _First._resource.rend()) {
+            buff = static_cast<long long>(result._resource.back()) + *_s;
+            ++_s;
+         }
+         else if(_s == _Second._resource.rend()) {
+            buff = static_cast<long long>(result._resource.back()) + *_f;
+            ++_f;
+         }
+         else {
+            buff = static_cast<long long>(result._resource.back()) + *_f + *_s;
+            ++_f;
+            ++_s;
+         }
+
+         result._resource.back() =  static_cast<int>(buff % BigInt::_base);
+         result._resource.push_back(static_cast<int>(buff / BigInt::_base));
+
       }
 
       result._remove_zeros();
@@ -217,14 +226,19 @@ namespace la {
          return -(_Second - _First);
       
       BigInt result = _First;
-      for(int i = 0; i < _Second._resource.size(); i++) {
-         result._resource[i] -= _Second._resource[i];
+      
+      std::list<int>::iterator _r = result._resource.begin();
+      for(std::list<int>::const_iterator _s = _Second._resource.begin(); _s != _Second._resource.end(); ++_r, ++_s) {
+         *_r -= *_s;
 
-         for(int r = i; r < result._resource.size() - 1; r++) {
-            if(result._resource[r] >= 0) break;
+         for(std::list<int>::iterator _br(_r); _br != result._resource.end(); ++_br) {
+            if(*_br >= 0) break;
 
-            result._resource[r] += BigInt::_base;
-            result._resource[r + 1]--;
+            *_br += BigInt::_base;
+            ++_br;
+            (*_br)--;
+            --_br;
+
          }
       }
 
@@ -240,18 +254,20 @@ namespace la {
    BigInt operator*(const BigInt& _First, const BigInt& _Second) {
       BigInt result = 0;
 
-      for(int i = 0; i < _Second._resource.size(); i++) {
+      int i = 0;
+      for(auto _s_el : _Second._resource) {
          BigInt buff;
-         buff._resource.resize(_First._resource.size() + i + 1, 0);
+         buff._resource.resize(i, 0);
          
-         for(int r = 0; r < _First._resource.size(); r++) {
-            long long number = static_cast<long long>(buff._resource[i + r]) + static_cast<long long>(_First._resource[r]) * _Second._resource[i];
+         for(auto _f_el : _First._resource) {
+            long long number = static_cast<long long>(buff._resource.back()) + static_cast<long long>(_f_el) * _s_el;
 
-            buff._resource[i + r]      = number % BigInt::_base;
-            buff._resource[i + r + 1]  = number / BigInt::_base;
+            buff._resource.back() = static_cast<int>(number % BigInt::_base);
+            buff._resource.push_back(static_cast<int>(number / BigInt::_base));
          }
 
          result += buff;
+         i++;
       }
 
       result._negative = _First._negative != _Second._negative;
@@ -359,8 +375,9 @@ namespace la {
       out << _Val._resource.back();
       char filling = out.fill('0');
 
-      for (long long i = static_cast<long long>(_Val._resource.size()) - 2; i >= 0; i--) 
-         out << std::setw(_Val._digit) << _Val._resource[i];
+      std::list<int>::const_reverse_iterator _iter = _Val._resource.rbegin();
+      for (--_iter; _iter != _Val._resource.rend(); --_iter) 
+         out << std::setw(BigInt::_digit) << *_iter;
       
       out.fill(filling);   // returning filling to default
 

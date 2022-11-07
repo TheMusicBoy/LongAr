@@ -6,7 +6,7 @@
 #include<stdexcept>
 #include<type_traits>
 
-#include<vector>
+#include<list>
 #include<string>
 
 #include<istream>
@@ -20,7 +20,7 @@ namespace la {
       static const int _base = 1000000000;
       static const int _digit = 9;
 
-      std::vector<int> _resource;
+      std::list<int> _resource;
       bool _negative;
 
       void _remove_zeros();
@@ -107,8 +107,8 @@ namespace la {
       _Ty result     = static_cast<_Ty>(0);
       _Ty _some_base = static_cast<_Ty>(1);
 
-      for(int iter = 0; iter < _resource.size(); iter++) {
-         result += static_cast<_Ty>(_resource[iter]) * _some_base;
+      for(auto el : _resource) {
+         result += static_cast<_Ty>(el) * _some_base;
          _some_base = _some_base * static_cast<_Ty>(_base);
       }
 
