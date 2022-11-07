@@ -21,3 +21,5 @@ out/
 
 # CLion build directories
 cmake-build-*/
+
+source.cpp
