@@ -185,15 +185,15 @@ namespace la {
       BigInt result;
 
       result._resource.push_back(0);
-      for(std::list<int>::const_reverse_iterator _f = _First._resource.rbegin(), _s = _Second._resource.rbegin();
-            _f != _First._resource.rend() || _s != _Second._resource.rend();) {
+      for(std::list<int>::const_iterator _f = _First._resource.begin(), _s = _Second._resource.begin();
+            _f != _First._resource.end() || _s != _Second._resource.end();) {
 
          long long buff;
-         if(_f == _First._resource.rend()) {
+         if(_f == _First._resource.end()) {
             buff = static_cast<long long>(result._resource.back()) + *_s;
             ++_s;
          }
-         else if(_s == _Second._resource.rend()) {
+         else if(_s == _Second._resource.end()) {
             buff = static_cast<long long>(result._resource.back()) + *_f;
             ++_f;
          }
@@ -254,7 +254,7 @@ namespace la {
    BigInt operator*(const BigInt& _First, const BigInt& _Second) {
       BigInt result = 0;
 
-      int i = 0;
+      int i = 1;
       for(auto _s_el : _Second._resource) {
          BigInt buff;
          buff._resource.resize(i, 0);
@@ -376,7 +376,7 @@ namespace la {
       char filling = out.fill('0');
 
       std::list<int>::const_reverse_iterator _iter = _Val._resource.rbegin();
-      for (--_iter; _iter != _Val._resource.rend(); --_iter) 
+      for (++_iter; _iter != _Val._resource.rend(); ++_iter) 
          out << std::setw(BigInt::_digit) << *_iter;
       
       out.fill(filling);   // returning filling to default
