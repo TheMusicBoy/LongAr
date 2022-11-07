@@ -8,3 +8,5 @@ set(HEADERS include/big_int.hpp)
 set(SOURCES lib/big_int.cpp)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
+
+add_executable(${PROJECT_NAME} ${SOURCES} source.cpp)
