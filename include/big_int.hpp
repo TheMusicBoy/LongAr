@@ -12,7 +12,7 @@
 #include<istream>
 #include<ostream>
 
-namespace la {
+namespace bi {
    
    
    class BIG_INT_API BigInt {
@@ -89,6 +89,8 @@ namespace la {
 
    // Template constructor
    BIG_INT_API template<typename _Ty> BigInt::BigInt(const _Ty& _Val) : BigInt() {
+      static_assert(std::is_convertible<_Ty, long long>::value, "This type is't convertable to BigInt");
+
       _Ty val = _Val;
 
       if(val < 0) {

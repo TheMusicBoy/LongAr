@@ -5,7 +5,7 @@
 #include<algorithm>
 #include<iomanip>
 
-namespace la {
+namespace bi {
    
    BigInt::BigInt() { _negative = false; }
 
@@ -208,6 +208,8 @@ namespace la {
 
       }
 
+      result._negative = _First._negative;
+
       result._remove_zeros();
 
       return result;
@@ -300,10 +302,10 @@ namespace la {
 
       if(_First < _Second) return 0;
 
-      BigInt result, current(_First);
+      BigInt result, current(_First.abs());
 
       for(long long i = static_cast<long long>(_First._resource.size()) - 1; i >= 0; i--) {
-         BigInt buffer(_Second);
+         BigInt buffer(_Second.abs());
          buffer._shift(i);
 
          int r = findRes(current, buffer, BigInt::_base);
@@ -326,15 +328,18 @@ namespace la {
       if(_Second._resource.empty()) 
          throw std::invalid_argument("cannot be divided by zero");
 
-      BigInt current(_First);
+      BigInt current(_First.abs());
 
       for(long long i = static_cast<long long>(_First._resource.size()) - 1; i >= 0; i--) {
-         BigInt buffer(_Second);
+         BigInt buffer(_Second.abs());
          buffer._shift(i);
 
          int r = findRes(current, buffer, _First._base);
          current -= buffer * r;
       }
+
+      if(!current._resource.empty())
+         current._negative = _First._negative;
 
       return current;
    }
