@@ -21,8 +21,6 @@ namespace bi {
       _remove_zeros();
    }
 
-   BigInt::~BigInt() {}
-
    // Private Methods
 
    void BigInt::_remove_zeros() {
@@ -39,7 +37,7 @@ namespace bi {
    // Public methods
 
    BigInt BigInt::abs() const {
-      BigInt result = *this;
+      BigInt result(*this);
       result._negative = false;
       return result;
    }
@@ -147,12 +145,15 @@ namespace bi {
    // Unary operators
 
    BigInt operator+(const BigInt& _Val) {
-      return static_cast<BigInt>(_Val);
+      BigInt result(_Val);
+      result._remove_zeros();
+      return result;
    }
 
    BigInt operator-(const BigInt& _Val) {
       BigInt result(_Val);
       result._negative = !result._negative;
+      result._remove_zeros();
       return result;
    }
 
@@ -300,7 +301,7 @@ namespace bi {
       if(_Second._resource.empty()) 
          throw std::invalid_argument("cannot be divided by zero");
 
-      if(_First < _Second) return 0;
+      if(_First.abs() < _Second.abs()) return 0;
 
       BigInt result, current(_First.abs());
 
@@ -320,7 +321,7 @@ namespace bi {
    }
 
    BigInt& operator/=(BigInt& _First, const BigInt& _Second) {
-      _First = _First / _Second;
+      _First = (_First / _Second);
       return _First;
    }
 
