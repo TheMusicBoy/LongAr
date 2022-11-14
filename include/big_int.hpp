@@ -32,10 +32,16 @@ namespace bi {
       BigInt(const std::string& _Val);
       template<typename _Ty> BigInt(const _Ty& _Val);
 
-      ~BigInt();
+      BigInt(const BigInt&) = default;
+      BigInt(BigInt&&) = default;
+      
+      ~BigInt() = default;
 
       // Some methods
       BigInt abs() const;
+
+      BigInt& operator=(const BigInt&) = default;
+      BigInt& operator=(BigInt&&) = default;
 
       // Comparision operators
       friend bool operator==(const BigInt&, const BigInt&);
